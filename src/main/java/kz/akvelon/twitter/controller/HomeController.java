@@ -1,11 +1,10 @@
 package kz.akvelon.twitter.controller;
 
-import kz.akvelon.twitter.dto.LoginDto;
-import kz.akvelon.twitter.dto.RegistrationDto;
+import kz.akvelon.twitter.dto.request.LoginDto;
+import kz.akvelon.twitter.dto.request.RegistrationDto;
 import kz.akvelon.twitter.model.Account;
 import kz.akvelon.twitter.model.AccountTemp;
 import kz.akvelon.twitter.service.AccountTempService;
-import kz.akvelon.twitter.service.EmailSenderService;
 import kz.akvelon.twitter.service.UserService;
 import kz.akvelon.twitter.token.JWTAuthResponse;
 import kz.akvelon.twitter.token.JwtUtil;
@@ -18,8 +17,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
 
 @RestController
 @Slf4j
@@ -42,6 +39,12 @@ public class HomeController {
         String token = tokenProvider.generateToken(authentication);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new JWTAuthResponse(token));
     }
+    /*
+    {
+        "email":"amanzholovbakhytzhan@gmail.com",
+        "password":"password"
+    }
+     */
 
     @PostMapping("/registration")
     public ResponseEntity<?> registration(@RequestBody RegistrationDto registrationDto) {
@@ -51,10 +54,7 @@ public class HomeController {
         if (accountTempService.findByEmail(registrationDto.getEmail()) != null) {
             return new ResponseEntity<>("Please confirm your email", HttpStatus.BAD_REQUEST);
         }
-        AccountTemp account = new AccountTemp();
-        account.setEmail(registrationDto.getEmail());
-        account.setPassword(registrationDto.getPassword());
-        account.setUsername(registrationDto.getUsername());
+        AccountTemp account = AccountTemp.fromRequestDto(registrationDto);
         accountTempService.save(account);
         return new ResponseEntity<>("Please confirm your email", HttpStatus.OK);
     }
@@ -63,7 +63,7 @@ public class HomeController {
         AccountTemp accountTemp = accountTempService.findByEmail(email);
         Account account = new Account(accountTemp.getEmail(), accountTemp.getUsername(), accountTemp.getPassword());
         userService.save(account);
-        accountTempService.delete(accountTemp);
+        accountTempService.delete(accountTemp.getId());
         return new ResponseEntity<>("User successfully registered ", HttpStatus.OK);
     }
 }

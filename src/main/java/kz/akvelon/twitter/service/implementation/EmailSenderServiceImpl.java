@@ -63,7 +63,6 @@ public class EmailSenderServiceImpl implements EmailSenderService {
             contentPart.setDataHandler(new DataHandler(content, "text/html; charset=gbk"));
             multipart.addBodyPart(contentPart);
             message.setContent(multipart);
-            System.out.println(content);
             message.saveChanges();
             transport.sendMessage(message, message.getRecipients(Message.RecipientType.TO));
             transport.close();
