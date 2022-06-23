@@ -1,4 +1,4 @@
-package kz.akvelon.twitter.dto;
+package kz.akvelon.twitter.dto.request;
 
 import lombok.Data;
 
