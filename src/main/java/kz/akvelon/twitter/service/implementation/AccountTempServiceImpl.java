@@ -34,7 +34,8 @@ public class AccountTempServiceImpl implements AccountTempService {
     }
 
     @Override
-    public void delete(AccountTemp entity) {
+    public void delete(Long id) {
+        AccountTemp entity = findById(id);
         accountTempRepository.delete(entity);
     }
 
