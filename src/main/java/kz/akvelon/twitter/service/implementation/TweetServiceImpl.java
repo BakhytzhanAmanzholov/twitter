@@ -3,14 +3,22 @@ package kz.akvelon.twitter.service.implementation;
 import kz.akvelon.twitter.dto.response.tweets.TweetResponseDto;
 import kz.akvelon.twitter.dto.response.tweets.TweetsDtoPage;
 import kz.akvelon.twitter.model.Account;
+import kz.akvelon.twitter.model.Poll;
+import kz.akvelon.twitter.model.PollChoice;
 import kz.akvelon.twitter.model.Tweet;
+import kz.akvelon.twitter.repository.PollChoiceRepository;
+import kz.akvelon.twitter.repository.PollRepository;
 import kz.akvelon.twitter.repository.TweetRepository;
+import kz.akvelon.twitter.repository.UserRepository;
 import kz.akvelon.twitter.service.TweetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -19,6 +27,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TweetServiceImpl implements TweetService {
     private final TweetRepository tweetRepository;
+    private final PollRepository pollRepository;
+    private final PollChoiceRepository pollChoiceRepository;
+    private final UserRepository userRepository;
 
     @Override
     public TweetsDtoPage getTweets(Pageable pageable) {
@@ -37,7 +48,7 @@ public class TweetServiceImpl implements TweetService {
 
     @Override
     public Tweet findById(Long tweetId) {
-        return tweetRepository.findById(tweetId)
+        return tweetRepository.findTweetById(tweetId)
                 .orElseThrow(NoSuchElementException::new);
     }
 
@@ -66,6 +77,67 @@ public class TweetServiceImpl implements TweetService {
     @Override
     public List<Tweet> findTweetsByDescription(String text, Pageable pageable) {
         return tweetRepository.findTweetsByTextContaining(text, pageable);
+    }
+
+    @Override
+    public Tweet createPoll(Long tweetId, Long pollDateTime, List<String> choices) {
+        if (choices.size() < 2 || choices.size() > 4) {
+            throw new IllegalArgumentException();
+        }
+
+
+        Tweet createdTweet = findById(tweetId);
+        LocalDateTime dateTime = LocalDateTime.now().plusMinutes(pollDateTime);
+
+        Poll poll = new Poll();
+        poll.setTweet(createdTweet);
+        poll.setDateTime(dateTime);
+        List<PollChoice> pollChoices = new ArrayList<>();
+
+        choices.forEach(choice -> {
+            if (choice.length() == 0 || choice.length() > 25) {
+                throw new IllegalArgumentException();
+            }
+
+            PollChoice pollChoice = new PollChoice();
+            pollChoice.setChoice(choice);
+            pollChoiceRepository.save(pollChoice);
+            pollChoices.add(pollChoice);
+        });
+
+        poll.setPollChoices(pollChoices);
+        pollRepository.save(poll);
+        createdTweet.setPoll(poll);
+
+        return findById(createdTweet.getId());
+    }
+
+    @Override
+    public Tweet voteInPoll(String email, Long tweetId, Long pollId, Long pollChoiceId) {
+        Poll poll = pollRepository.findById(pollId)
+                .orElseThrow(IllegalArgumentException::new);
+        PollChoice pollChoice = pollChoiceRepository.findById(pollChoiceId)
+                .orElseThrow(IllegalArgumentException::new);
+        Tweet tweet = tweetRepository.findById(tweetId)
+                .orElseThrow(IllegalArgumentException::new);
+
+        if (!tweet.getPoll().getId().equals(poll.getId())) {
+            throw new IllegalArgumentException();
+        }
+
+        Account user = userRepository.findByEmail(email);
+
+        List<PollChoice> pollChoices = tweet.getPoll().getPollChoices().stream()
+                .peek(choice -> {
+                    if (choice.getId().equals(pollChoice.getId())) {
+                        choice.getVotedUser().add(user);
+                    }
+                })
+                .collect(Collectors.toList());
+
+        tweet.getPoll().setPollChoices(pollChoices);
+
+        return findById(tweet.getId());
     }
 
     @Override

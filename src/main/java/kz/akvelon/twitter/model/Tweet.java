@@ -31,11 +31,17 @@ public class Tweet {
     @JoinColumn(name = "account_id")
     private Account account;
 
+    @OneToOne
+    private Tweet quoteTweet;
+
     @ManyToMany
     private Map<Reaction, ReactionInfo> reactions;
 
     @OneToOne
-    private Tweet quoteTweet;
+    @JoinTable(name = "tweet_pool",
+            joinColumns = @JoinColumn(name = "tweets_id"),
+            inverseJoinColumns = @JoinColumn(name = "pools_id"))
+    private Poll poll;
 
 
     public Tweet() {

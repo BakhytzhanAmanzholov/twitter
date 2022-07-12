@@ -15,5 +15,7 @@ public interface TweetRepository extends JpaRepository<Tweet, Long> {
 
     Optional<Tweet> findTweetByIdAndAccount_Id(Long id, Long accountId);
 
+    Optional<Tweet> findTweetById(Long id);
+
     List<Tweet> findTweetsByTextContaining(String text, Pageable pageable);
 }

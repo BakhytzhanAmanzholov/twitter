@@ -18,4 +18,8 @@ public interface TweetService extends CrudService<Tweet, Long>{
 //    Tweet delete(Long accountId, Long tweetId);
 
     List<Tweet> findTweetsByDescription(String text, Pageable pageable);
+
+    Tweet createPoll(Long tweetId, Long pollDateTime, List<String> choices);
+
+    Tweet voteInPoll(String email, Long tweetId, Long pollId, Long pollChoiceId);
 }

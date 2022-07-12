@@ -1,6 +1,5 @@
 package kz.akvelon.twitter.service.implementation;
 
-import kz.akvelon.twitter.model.Account;
 import kz.akvelon.twitter.model.AccountTemp;
 import kz.akvelon.twitter.repository.AccountTempRepository;
 import kz.akvelon.twitter.service.AccountTempService;

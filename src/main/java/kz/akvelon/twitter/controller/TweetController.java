@@ -70,4 +70,14 @@ public class TweetController {
             return ResponseEntity.status(HttpStatus.OK).body("You have already left a reaction");
         }
     }
+
+    @PostMapping("/{tweet-id}/poll")
+    public ResponseEntity<?> createPoll(@RequestBody TweetRequestDto tweetRequest, @PathVariable("tweet-id") Long tweetId) {
+        Tweet tweet = tweetService.createPoll(tweetId, tweetRequest.getPollDateTime(), tweetRequest.getChoices());
+        if (tweet.getPoll() != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(TweetResponseDto.from(tweet));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No matching tweet found");
+        }
+    }
 }

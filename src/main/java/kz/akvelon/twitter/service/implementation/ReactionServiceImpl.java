@@ -1,9 +1,7 @@
 package kz.akvelon.twitter.service.implementation;
 
-
 import kz.akvelon.twitter.model.Reaction;
 import kz.akvelon.twitter.repository.ReactionRepository;
-import kz.akvelon.twitter.service.CrudService;
 import kz.akvelon.twitter.service.ReactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
