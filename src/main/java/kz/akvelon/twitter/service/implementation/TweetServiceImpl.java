@@ -63,15 +63,8 @@ public class TweetServiceImpl implements TweetService {
     public void delete(Long tweetId) {
         Tweet tweet = findById(tweetId);
         Account account = findById(tweetId).getAccount();
-//        Optional<Tweet> tweetOptional = tweetRepository.findTweetByIdAndAccount_Id(tweetId, accountId);
         account.getTweets().remove(tweet);
         tweetRepository.delete(tweet);
-//        if (tweetOptional.isPresent()) {
-//            tweetRepository.delete(tweetOptional.get());
-//            return tweetOptional.get();
-//        } else {
-//            throw new IllegalArgumentException("Account does not have tweet with id " + tweetId);
-//        }
     }
 
     @Override
@@ -84,7 +77,6 @@ public class TweetServiceImpl implements TweetService {
         if (choices.size() < 2 || choices.size() > 4) {
             throw new IllegalArgumentException();
         }
-
 
         Tweet createdTweet = findById(tweetId);
         LocalDateTime dateTime = LocalDateTime.now().plusMinutes(pollDateTime);
@@ -138,6 +130,13 @@ public class TweetServiceImpl implements TweetService {
         tweet.getPoll().setPollChoices(pollChoices);
 
         return findById(tweet.getId());
+    }
+
+    @Override
+    @Transactional
+    public String deleteScheduledTweets(List<Long> tweetsIds) {
+        tweetsIds.forEach(this::delete);
+        return "Deleted scheduled tweets";
     }
 
     @Override

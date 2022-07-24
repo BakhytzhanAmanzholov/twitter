@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -12,7 +13,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TweetRequestDto {
+    private Long id;
     private String text;
     private Long pollDateTime;
     private List<String> choices;
+    private LocalDateTime scheduledDate;
 }

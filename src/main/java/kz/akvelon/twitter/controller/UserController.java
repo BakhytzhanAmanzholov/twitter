@@ -55,8 +55,8 @@ public class UserController {
     }
 
     @PostMapping("/subscribe/{id}")
-    public ResponseEntity<?> subscribe(@PathVariable("id") Long id){
-        if(userService.subscribe(id, userService.isLogged())){
+    public ResponseEntity<?> subscribe(@PathVariable("id") Long id) {
+        if (userService.subscribe(id, userService.isLogged())) {
             return ResponseEntity.status(HttpStatus.OK).body("You have successfully subscribed");
         }
         return ResponseEntity.status(HttpStatus.OK).body("You have already subscribed");

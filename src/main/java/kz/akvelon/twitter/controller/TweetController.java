@@ -1,5 +1,7 @@
 package kz.akvelon.twitter.controller;
 
+import kz.akvelon.twitter.dto.request.PollVoteRequestDto;
+import kz.akvelon.twitter.dto.request.TweetDeleteRequestDto;
 import kz.akvelon.twitter.dto.request.TweetRequestDto;
 import kz.akvelon.twitter.dto.response.tweets.TweetResponseDto;
 import kz.akvelon.twitter.dto.response.tweets.TweetsDtoPage;
@@ -15,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityNotFoundException;
+import java.nio.file.AccessDeniedException;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -33,9 +37,8 @@ public class TweetController {
     @PostMapping
     public ResponseEntity<TweetResponseDto> save(@RequestBody TweetRequestDto tweetRequest) {
         Tweet tweet = Tweet.fromRequestDto(tweetRequest);
-        Account account = userService.findByEmail(userService.isLogged());
-        tweet.setAccount(account);
-        return ResponseEntity.status(HttpStatus.CREATED).body(TweetResponseDto.from(tweetService.save(tweet)));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(TweetResponseDto.from(tweetService.save(tweet)));
     }
 
     @GetMapping("/{tweet-id}")
@@ -48,25 +51,34 @@ public class TweetController {
         }
     }
 
+    @DeleteMapping("/{tweet-id}")
+    public ResponseEntity<?> deleteTweet(@PathVariable("tweet-id") Long tweetId) {
+        try {
+            tweetService.delete(tweetId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PostMapping("/retweet/{tweet-id}")
-    public ResponseEntity<?> retweet(@PathVariable("tweet-id") Long tweetId){
+    public ResponseEntity<?> retweet(@PathVariable("tweet-id") Long tweetId) {
         userService.retweet(tweetId, userService.isLogged());
         return ResponseEntity.ok("Retweeted");
     }
 
     @PostMapping("/quote/{tweet-id}")
-    public ResponseEntity<?> quote(@PathVariable("tweet-id") Long tweetId, @RequestBody TweetRequestDto tweetRequestDto){
+    public ResponseEntity<?> quote(@PathVariable("tweet-id") Long tweetId, @RequestBody TweetRequestDto tweetRequestDto) {
         Tweet tweet = Tweet.fromRequestDto(tweetRequestDto);
         userService.quote(tweetId, userService.isLogged(), tweet);
         return ResponseEntity.ok("Quote tweet");
     }
 
     @PostMapping("/reaction/{tweet-id}/{reaction-id}")
-    public ResponseEntity<?> reaction(@PathVariable("tweet-id") Long tweetId, @PathVariable("reaction-id") Long reactionId){
-        if(userService.reaction(tweetId, userService.isLogged(), reactionId)){
+    public ResponseEntity<?> reaction(@PathVariable("tweet-id") Long tweetId, @PathVariable("reaction-id") Long reactionId) {
+        if (userService.reaction(tweetId, userService.isLogged(), reactionId)) {
             return ResponseEntity.status(HttpStatus.OK).body("You have successfully left a reaction");
-        }
-        else {
+        } else {
             return ResponseEntity.status(HttpStatus.OK).body("You have already left a reaction");
         }
     }
@@ -79,5 +91,32 @@ public class TweetController {
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No matching tweet found");
         }
+    }
+
+    @PostMapping("/vote")
+    public ResponseEntity<?> voteInPoll(@RequestBody PollVoteRequestDto pollVoteRequestDto) {
+        TweetResponseDto tweet = TweetResponseDto.from(tweetService.voteInPoll(pollVoteRequestDto.getEmail(),
+                pollVoteRequestDto.getTweetId(),
+                pollVoteRequestDto.getPollId(),
+                pollVoteRequestDto.getPollChoiceId()));
+
+        return ResponseEntity.ok(tweet);
+    }
+
+    @PostMapping("/schedule")
+    public ResponseEntity<TweetResponseDto> createScheduledTweet(@RequestBody TweetRequestDto tweetRequest) {
+        Tweet tweet = Tweet.fromRequestDto(tweetRequest);
+        return ResponseEntity.ok(TweetResponseDto.from(tweetService.save(tweet)));
+    }
+
+    @PutMapping("/schedule")
+    public ResponseEntity<TweetResponseDto> updateScheduledTweet(@RequestBody TweetRequestDto tweetRequest) {
+        Tweet tweet = Tweet.fromRequestDto(tweetRequest);
+        return ResponseEntity.ok(TweetResponseDto.from(tweetService.save(tweet)));
+    }
+
+    @DeleteMapping("/schedule")
+    public ResponseEntity<String> deleteScheduledTweets(@RequestBody TweetDeleteRequestDto tweetRequest) {
+        return ResponseEntity.ok(tweetService.deleteScheduledTweets(tweetRequest.getTweetIds()));
     }
 }

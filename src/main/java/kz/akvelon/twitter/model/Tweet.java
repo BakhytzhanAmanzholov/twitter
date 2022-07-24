@@ -27,6 +27,9 @@ public class Tweet {
     @Column(name = "date_time")
     private LocalDateTime dateTime;
 
+    @Column(name = "scheduled_date")
+    private LocalDateTime scheduledDate;
+
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;

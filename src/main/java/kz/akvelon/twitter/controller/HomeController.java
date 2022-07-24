@@ -58,7 +58,8 @@ public class HomeController {
         accountTempService.save(account);
         return new ResponseEntity<>("Please confirm your email", HttpStatus.OK);
     }
-    @GetMapping("/confirmEmail/{email}/{username}")
+
+    @GetMapping("/confirm/{email}/{username}")
     public ResponseEntity<?> confirm(@PathVariable("email") String email, @PathVariable("username") String username) {
         AccountTemp accountTemp = accountTempService.findByEmail(email);
         Account account = new Account(accountTemp.getEmail(), accountTemp.getUsername(), accountTemp.getPassword());
@@ -66,6 +67,4 @@ public class HomeController {
         accountTempService.delete(accountTemp.getId());
         return new ResponseEntity<>("User successfully registered ", HttpStatus.OK);
     }
-
-
 }
