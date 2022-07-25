@@ -25,4 +25,22 @@ public class RoleServiceImpl implements RoleService {
     public Role findByName(String name) {
         return roleRepository.findByName(name);
     }
+
+    @Override
+    public void delete(Long id) {
+        Role entity = findById(id);
+        roleRepository.delete(entity);
+    }
+
+    @Override
+    public Role update(Role entity) {
+        Role role = findById(entity.getId());
+        role.setName(entity.getName());
+        return role;
+    }
+
+    @Override
+    public Role findById(Long aLong) {
+        return roleRepository.findById(aLong).orElseThrow(IllegalArgumentException::new);
+    }
 }

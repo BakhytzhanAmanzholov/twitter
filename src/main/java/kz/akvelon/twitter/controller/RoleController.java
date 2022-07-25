@@ -22,9 +22,10 @@ public class RoleController {
     @PostMapping
     public ResponseEntity<?> save(@RequestBody String name) {
         if (roleService.findByName(name) != null) {
-            return new ResponseEntity<>("Role is already created!", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Role is already created!", HttpStatus.OK);
         }
         Role role = new Role(name);
+        System.out.println(role);
         roleService.save(role);
         return new ResponseEntity<>("Role create successfully", HttpStatus.OK);
     }

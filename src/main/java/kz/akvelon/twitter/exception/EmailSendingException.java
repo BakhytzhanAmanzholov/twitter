@@ -1,17 +1,17 @@
 package kz.akvelon.twitter.exception;
 
 import org.springframework.http.HttpStatus;
-//APIException
-public class JWTException extends RuntimeException {
+
+public class EmailSendingException extends RuntimeException {
     private HttpStatus status;
     private String message;
 
-    public JWTException(HttpStatus status, String message) {
+    public EmailSendingException(HttpStatus status, String message) {
         this.status = status;
         this.message = message;
     }
 
-    public JWTException(String message, HttpStatus status, String message1) {
+    public EmailSendingException(String message, HttpStatus status, String message1) {
         super(message);
         this.status = status;
         this.message = message1;
