@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.sql.Date;
+import java.sql.Time;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +28,7 @@ public class Tweet {
     private String text;
 
     @Column(name = "date_time")
-    private LocalDateTime dateTime;
+    private Date date;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
@@ -39,14 +42,13 @@ public class Tweet {
 
 
     public Tweet() {
-        this.dateTime = LocalDateTime.now().withNano(0);
+
     }
 
     public static Tweet fromRequestDto(TweetRequestDto tweetRequestDto){
         return Tweet.builder()
                 .text(tweetRequestDto.getText())
-                .dateTime(LocalDateTime.now()) // TODO: Исправить Schedule time и dateTime, чтобы показало нормально, а не
-                                                // 2022-06-23T15:46:02.420474, для этого использовать Класс Time
+                .date(Date.valueOf(LocalDate.now()))
                 .build();
     }
 }

@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 
 @Service
 @RequiredArgsConstructor
@@ -158,5 +160,19 @@ public class UserServiceImpl implements UserService{
     public void confirm(String email, String username) {
         Account account = findByEmail(email);
         account.setConfirmed(true);
+    }
+
+    @Override
+    public void ban(String email) {
+        Account account = findByEmail(email);
+        for(Role role: account.getRoles()){
+            if(Objects.equals(role.getName(), "ROLE_ADMIN")){
+                return;
+            }
+        }
+        for (Tweet tweet: account.getTweets()) {
+            tweetService.delete(tweet.getId());
+        }
+        account.setBanned(false);
     }
 }

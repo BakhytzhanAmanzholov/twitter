@@ -6,12 +6,16 @@ import kz.akvelon.twitter.model.ReactionInfo;
 import kz.akvelon.twitter.model.Tweet;
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDateTime;
+import java.sql.Time;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Data
+@Slf4j
 @Builder
 public class TweetResponseDto {
     private Long id;
@@ -20,7 +24,7 @@ public class TweetResponseDto {
 
     private List<ReactionDto> reactions;
 
-    private LocalDateTime dateTime;
+    private String date;
 
     private UserInfoDto user;
 
@@ -29,15 +33,9 @@ public class TweetResponseDto {
         TweetResponseDto tweetResponseDto = TweetResponseDto.builder()
                 .id(tweet.getId())
                 .text(tweet.getText())
-                .dateTime(tweet.getDateTime())
+                .date(tweet.getDate().toString())
                 .user(
                         UserInfoDto.from(tweet.getAccount())
-//                        UserInfoDto.builder()
-//                                .id(tweet.getAccount().getId())
-//                                .username(tweet.getAccount().getEmail())
-//                                .email(tweet.getAccount().getUsername())
-//                                .subscribers(tweet.getAccount().getSubscribers())
-//                                .build()
                 )
                 .reactions(new ArrayList<>())
                 .build();

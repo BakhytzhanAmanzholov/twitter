@@ -1,17 +1,15 @@
 package kz.akvelon.twitter.dto.response.tweets;
 
 import kz.akvelon.twitter.dto.response.ReactionDto;
-import kz.akvelon.twitter.model.Reaction;
 import kz.akvelon.twitter.model.ReactionInfo;
 import kz.akvelon.twitter.model.Tweet;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Builder
@@ -19,7 +17,7 @@ public class QuoteTweetResponseDto {
     private Long id;
     private String text;
     private List<ReactionDto> reactions;
-    private LocalDateTime dateTime;
+    private String date;
     private TweetResponseDto quotesTweet;
 
     public static QuoteTweetResponseDto from(Tweet tweet) {
@@ -29,7 +27,7 @@ public class QuoteTweetResponseDto {
                         TweetResponseDto.from(tweet.getQuoteTweet())
                 )
                 .text(tweet.getText())
-                .dateTime(tweet.getDateTime())
+                .date(tweet.getDate().toString())
                 .reactions(new ArrayList<>())
                 .build();
 

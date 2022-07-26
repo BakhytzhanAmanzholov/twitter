@@ -19,4 +19,6 @@ public interface UserService extends CrudService<Account, Long>{
     boolean subscribe(Long id, String email);
 
     void confirm(String email, String username);
+
+    void ban(String email);
 }
