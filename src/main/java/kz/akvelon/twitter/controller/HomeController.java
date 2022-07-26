@@ -32,6 +32,7 @@ public class HomeController {
             userService.save(account);
             return new ResponseEntity<>("Please confirm your email", HttpStatus.OK);
         }
+
         return new ResponseEntity<>("Email is already taken!", HttpStatus.BAD_REQUEST);
         /*
         if(userService.findByEmail(registrationDto.getEmail()) != null){

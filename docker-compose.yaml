@@ -1,0 +1,51 @@
+version: '3.3'
+
+services:
+
+  application:
+    image:
+      application-image
+    container_name: application
+    networks:
+      - cloud
+    ports:
+      - 80:8080
+    depends_on:
+      - database
+    environment:
+      - "SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/app_db"
+      - "SPRING_DATASOURCE_USERNAME=postgres"
+      - "SPRING_DATASOURCE_PASSWORD=abc123"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+
+  database:
+    image:
+      postgres
+    container_name: postgresql-container
+    networks:
+      - cloud
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_DB: app_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: abc123
+    volumes:
+      - pgdata:/var/lib/postgres/data
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+
+volumes:
+  pgdata:
+    external: true
+
+networks:
+  cloud:
+    external: true
