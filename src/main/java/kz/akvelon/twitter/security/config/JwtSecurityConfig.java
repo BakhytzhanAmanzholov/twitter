@@ -36,7 +36,9 @@ public class JwtSecurityConfig {
         httpSecurity.csrf().disable();
         httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         httpSecurity.authorizeRequests().antMatchers("/registration/**", "auth/token/**", "/**").permitAll();
-//        httpSecurity.authorizeRequests().antMatchers("/users/**", "/tweets/**").hasAnyRole("ROLE_USER");
+        httpSecurity.authorizeRequests().antMatchers("/users/**", "/tweets/**").hasAnyRole("ROLE_USER");
+        httpSecurity.authorizeRequests().antMatchers("/admin/**").hasAnyRole("ROLE_ADMIN");
+
         httpSecurity.addFilter(jwtAuthenticationFilter);
         httpSecurity.addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();

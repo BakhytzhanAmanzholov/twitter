@@ -2,12 +2,14 @@ package kz.akvelon.twitter.security.details;
 
 
 import kz.akvelon.twitter.model.Account;
+import kz.akvelon.twitter.model.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -20,10 +22,12 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String roleAsAuthority = account.getRoles().get(account.getRoles().size() - 1).getName();
-        log.info(account.getRoles().get(account.getRoles().size() - 1).getName());
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(roleAsAuthority);
-        return Collections.singleton(authority);
+        Collection<GrantedAuthority> collection = new ArrayList<>();
+        for (Role role: account.getRoles()){
+            SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role.getName());
+            collection.add(authority);
+        }
+        return collection;
     }
 
     @Override
