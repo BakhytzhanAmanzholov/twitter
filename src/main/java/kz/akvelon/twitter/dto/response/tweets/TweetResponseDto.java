@@ -1,5 +1,6 @@
 package kz.akvelon.twitter.dto.response.tweets;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import kz.akvelon.twitter.dto.response.ReactionDto;
 import kz.akvelon.twitter.dto.response.users.UserInfoDto;
 import kz.akvelon.twitter.model.ReactionInfo;
@@ -17,15 +18,17 @@ import java.util.List;
 @Data
 @Slf4j
 @Builder
+@Schema(name = "Tweet response body")
 public class TweetResponseDto {
+    @Schema(name = "Tweet id", example = "1")
     private Long id;
-
+    @Schema(name = "Tweet's text", example = "Lorem ipsum")
     private String text;
-
+    @Schema(name = "Tweet's list of reactions")
     private List<ReactionDto> reactions;
-
+    @Schema(name = "Tweet date")
     private String date;
-
+    @Schema(name = "User of a tweet")
     private UserInfoDto user;
 
 

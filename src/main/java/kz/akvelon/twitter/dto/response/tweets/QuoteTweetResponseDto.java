@@ -1,5 +1,6 @@
 package kz.akvelon.twitter.dto.response.tweets;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import kz.akvelon.twitter.dto.response.ReactionDto;
 import kz.akvelon.twitter.model.ReactionInfo;
 import kz.akvelon.twitter.model.Tweet;
@@ -13,11 +14,17 @@ import java.util.List;
 
 @Data
 @Builder
+@Schema(name = "Quoted tweet response")
 public class QuoteTweetResponseDto {
+    @Schema(name = "Tweet id", example = "1")
     private Long id;
+    @Schema(name = "Tweet's text", example = "Lorem ipsum")
     private String text;
+    @Schema(name = "Tweet's list of reactions")
     private List<ReactionDto> reactions;
+    @Schema(name = "Tweet date")
     private String date;
+    @Schema(name = "Tweet quotes")
     private TweetResponseDto quotesTweet;
 
     public static QuoteTweetResponseDto from(Tweet tweet) {

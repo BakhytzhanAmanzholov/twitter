@@ -1,5 +1,6 @@
 package kz.akvelon.twitter.controller;
 
+import kz.akvelon.twitter.controller.api.RoleApi;
 import kz.akvelon.twitter.model.Role;
 import kz.akvelon.twitter.service.RoleService;
 import kz.akvelon.twitter.service.UserService;
@@ -15,18 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/roles")
-public class RoleController {
+public class RoleController implements RoleApi {
     private final RoleService roleService;
 
-    @PostMapping
+    @Override
     public ResponseEntity<?> save(@RequestBody String name) {
         if (roleService.findByName(name) != null) {
-            return new ResponseEntity<>("Role is already created!", HttpStatus.OK);
+            return new ResponseEntity<>("Role is already created!", HttpStatus.ALREADY_REPORTED);
         }
         Role role = new Role(name);
-        System.out.println(role);
         roleService.save(role);
+
         return new ResponseEntity<>("Role create successfully", HttpStatus.OK);
     }
 }

@@ -67,7 +67,7 @@ public class JwtUtilAuth0Impl implements JwtUtil {
                 Account.builder()
                         .email(parsedToken.email)
                         .roles(
-                                Arrays.asList(Role.builder()
+                                Collections.singletonList(Role.builder()
                                         .name(parsedToken.role)
                                         .build()))
                                 .build()
