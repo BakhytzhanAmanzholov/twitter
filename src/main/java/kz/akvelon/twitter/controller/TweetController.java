@@ -4,7 +4,9 @@ import kz.akvelon.twitter.controller.api.TwitterApi;
 import kz.akvelon.twitter.dto.request.TweetRequestDto;
 import kz.akvelon.twitter.dto.response.tweets.TweetResponseDto;
 import kz.akvelon.twitter.model.Account;
+import kz.akvelon.twitter.model.Tag;
 import kz.akvelon.twitter.model.Tweet;
+import kz.akvelon.twitter.service.TagService;
 import kz.akvelon.twitter.service.TweetService;
 import kz.akvelon.twitter.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class TweetController implements TwitterApi {
     private final TweetService tweetService;
+    private final TagService tagService;
     private final UserService userService;
 
     @Override
@@ -83,5 +86,19 @@ public class TweetController implements TwitterApi {
         Clipboard clipboard = defaultToolkit.getSystemClipboard();
         clipboard.setContents(stringSelection, null);
         return ResponseEntity.status(HttpStatus.OK).body("The link has been copied!");
+    }
+
+    @Override
+    public ResponseEntity<?> addTag(Long tweetId, String tagName) {
+        Tweet tweet = tweetService.findById(tweetId);
+        Tag tag = tagService.findByName(tagName);
+
+        if (tweet == null || tag == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tweet or tag is not found");
+        }
+
+        tweetService.addTag(tweet, tag);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Added the tag to the tweet");
     }
 }

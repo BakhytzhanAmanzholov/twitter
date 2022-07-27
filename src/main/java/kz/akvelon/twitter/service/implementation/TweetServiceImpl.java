@@ -3,6 +3,7 @@ package kz.akvelon.twitter.service.implementation;
 import kz.akvelon.twitter.dto.response.tweets.TweetResponseDto;
 import kz.akvelon.twitter.dto.response.tweets.TweetsDtoPage;
 import kz.akvelon.twitter.model.Account;
+import kz.akvelon.twitter.model.Tag;
 import kz.akvelon.twitter.model.Tweet;
 import kz.akvelon.twitter.repository.TweetRepository;
 import kz.akvelon.twitter.service.TweetService;
@@ -24,6 +25,34 @@ public class TweetServiceImpl implements TweetService {
     private final TweetRepository tweetRepository;
 
     @Override
+    public Tweet save(Tweet tweet) {
+        Account account = tweet.getAccount();
+        account.getTweets().add(tweet);
+        return tweetRepository.save(tweet);
+    }
+
+    @Override
+    public Tweet update(Tweet entity) {
+        Tweet tweet = findById(entity.getId());
+        tweet.setText(entity.getText());
+        return tweet;
+    }
+
+    @Override
+    public void delete(Long tweetId) {
+        Tweet tweet = findById(tweetId);
+        Account account = findById(tweetId).getAccount();
+        account.getTweets().remove(tweet);
+        tweetRepository.delete(tweet);
+    }
+
+    @Override
+    public Tweet findById(Long tweetId) {
+        return tweetRepository.findById(tweetId)
+                .orElseThrow(NoSuchElementException::new);
+    }
+
+    @Override
     public TweetsDtoPage getTweets(Pageable pageable) {
         Page<Tweet> tweets = tweetRepository.findAll(pageable);
 
@@ -39,43 +68,17 @@ public class TweetServiceImpl implements TweetService {
     }
 
     @Override
-    public Tweet findById(Long tweetId) {
-        return tweetRepository.findById(tweetId)
-                .orElseThrow(NoSuchElementException::new);
-    }
-
-    @Override
-    public Tweet save(Tweet tweet) {
-        Account account = tweet.getAccount();
-        account.getTweets().add(tweet);
-        return tweetRepository.save(tweet);
-    }
-
-    @Override
-    public void delete(Long tweetId) {
-        Tweet tweet = findById(tweetId);
-        Account account = findById(tweetId).getAccount();
-//        Optional<Tweet> tweetOptional = tweetRepository.findTweetByIdAndAccount_Id(tweetId, accountId);
-        account.getTweets().remove(tweet);
-        tweetRepository.delete(tweet);
-//        if (tweetOptional.isPresent()) {
-//            tweetRepository.delete(tweetOptional.get());
-//            return tweetOptional.get();
-//        } else {
-//            throw new IllegalArgumentException("Account does not have tweet with id " + tweetId);
-//        }
-    }
-
-    @Override
     public List<Tweet> findTweetsByDescription(String text, Pageable pageable) {
         return tweetRepository.findTweetsByTextContaining(text, pageable);
     }
 
     @Override
-    public Tweet update(Tweet entity) {
-        Tweet tweet = findById(entity.getId());
-        tweet.setText(entity.getText());
-        return tweet;
+    public void addTag(Tweet tweet, Tag tag) {
+        if (!tweet.getTags().contains(tag)) {
+            tweet.getTags().add(tag);
+        }
+
+        tweetRepository.save(tweet);
     }
 
 }

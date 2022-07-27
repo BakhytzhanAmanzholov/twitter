@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
 import kz.akvelon.twitter.dto.request.TweetRequestDto;
-import kz.akvelon.twitter.dto.response.tweets.TweetResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -134,4 +133,28 @@ public interface TwitterApi {
             )
     })
     ResponseEntity<?> share(@PathVariable("tweet-id") Long tweetId);
+
+    @PostMapping("/{tweet-id}/tweets/{tag-name}")
+    @Operation(summary = "Add a tag to a tweet")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully added a tweet",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ResponseEntity.class)
+                            )
+                    }
+            ),
+            @ApiResponse(responseCode = "400",
+                    description = "Tweet or tag is not found",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ResponseEntity.class)
+                            )
+                    }
+            )
+    })
+    ResponseEntity<?> addTag(@PathVariable("tweet-id") Long tweetId, @PathVariable("tag-name") String tagName);
 }

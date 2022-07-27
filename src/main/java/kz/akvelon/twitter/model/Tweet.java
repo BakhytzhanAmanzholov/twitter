@@ -37,6 +37,9 @@ public class Tweet {
     @ManyToMany
     private Map<Reaction, ReactionInfo> reactions;
 
+    @ManyToMany(mappedBy = "tweets")
+    private List<Tag> tags;
+
     @OneToOne
     private Tweet quoteTweet;
 
