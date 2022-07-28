@@ -91,8 +91,7 @@ public class EmailSenderServiceImpl implements EmailSenderService {
             System.out.println(result);
             return result.toString();
         } catch (Exception e) {
-            e.printStackTrace();
-            return "";
+            throw new RuntimeException(e);
         }
     }
 }

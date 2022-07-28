@@ -12,10 +12,13 @@ services:
       - 80:8080
     depends_on:
       - database
+      - redis
     environment:
       - "SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/app_db"
       - "SPRING_DATASOURCE_USERNAME=postgres"
       - "SPRING_DATASOURCE_PASSWORD=abc123"
+      - "REDIS_HOST=redis"
+      - "REDIS_PORT=6380"
     logging:
       driver: "json-file"
       options:
@@ -42,7 +45,27 @@ services:
         max-file: "5"
         max-size: "10m"
 
+  redis:
+    image:
+      redis-image
+    container_name:
+      redis_db
+    networks:
+      - cloud
+    ports:
+      - 6380:6380
+    volumes:
+      - redis-volume:/data
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+
+
 volumes:
+  redis-volume:
+    external: true
   pgdata:
     external: true
 

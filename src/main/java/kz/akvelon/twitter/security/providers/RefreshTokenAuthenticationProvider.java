@@ -3,6 +3,7 @@ package kz.akvelon.twitter.security.providers;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import kz.akvelon.twitter.security.authentication.RefreshTokenAuthentication;
 import kz.akvelon.twitter.security.exceptions.RefreshTokenException;
+import kz.akvelon.twitter.security.repository.BlackListRepository;
 import kz.akvelon.twitter.security.utils.JwtUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,15 +22,22 @@ public class RefreshTokenAuthenticationProvider implements AuthenticationProvide
 
     JwtUtil jwtUtil;
 
+    BlackListRepository blacklistRepository;
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String token = (String)authentication.getCredentials();
+
+        if (blacklistRepository.exists(token)) {
+            throw new RefreshTokenException("Token was revoked");
+        }
         try {
             return jwtUtil.buildAuthentication(token);
         } catch (JWTVerificationException e) {
             log.info(e.getMessage());
             throw new RefreshTokenException(e.getMessage(), e);
         }
+
     }
 
     @Override
