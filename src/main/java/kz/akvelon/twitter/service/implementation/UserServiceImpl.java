@@ -41,9 +41,8 @@ public class UserServiceImpl implements UserService{
         log.info("Saving new User {}", user.getEmail());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setConfirmed(false);
-        Account userFinal = userRepository.save(user);
-        addRoleToUser(user.getEmail(), "ROLE_USER");
         emailSenderService.sendEmail(user.getEmail(), user.getUsername());
+        Account userFinal = userRepository.save(user);
         return userFinal;
     }
 
@@ -54,7 +53,6 @@ public class UserServiceImpl implements UserService{
                 () -> new UsernameNotFoundException("User <" + email + "> not found"));;
         Role role = roleRepository.findByName(roleName);
         account.getRoles().add(role);
-        System.out.println(account);
     }
 
     @Override
@@ -160,6 +158,7 @@ public class UserServiceImpl implements UserService{
     public void confirm(String email, String username) {
         Account account = findByEmail(email);
         account.setConfirmed(true);
+        addRoleToUser(account.getEmail(), "ROLE_USER");
     }
 
     @Override
