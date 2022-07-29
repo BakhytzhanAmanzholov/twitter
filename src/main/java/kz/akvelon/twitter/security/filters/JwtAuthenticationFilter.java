@@ -1,18 +1,18 @@
 package kz.akvelon.twitter.security.filters;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import kz.akvelon.twitter.security.authentication.RefreshTokenAuthentication;
+import kz.akvelon.twitter.security.config.JwtSecurityConfig;
 import kz.akvelon.twitter.security.details.UserDetailsImpl;
 import kz.akvelon.twitter.security.utils.AuthorizationHeaderUtil;
 import kz.akvelon.twitter.security.utils.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-
+import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -23,9 +23,9 @@ import java.util.Map;
 
 import static kz.akvelon.twitter.constants.GlobalApplicationConstants.AUTHENTICATION_URL;
 
-
 @Component
 @Slf4j
+@ConditionalOnBean(value = JwtSecurityConfig.class)
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     public static final String USERNAME_PARAMETER = "email";
@@ -84,6 +84,4 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private boolean hasRefreshToken(HttpServletRequest request) {
         return authorizationHeaderUtil.hasAuthorizationToken(request);
     }
-
-
 }

@@ -5,7 +5,9 @@ import kz.akvelon.twitter.model.Tag;
 
 import java.util.List;
 
-public interface TagService {
+public interface TagsService {
+    Tag addTag(String name);
+
     List<Tag> getTags();
 
     Tag findByName(String tagName);

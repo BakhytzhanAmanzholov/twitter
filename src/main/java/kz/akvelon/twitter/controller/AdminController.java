@@ -18,7 +18,7 @@ public class AdminController implements AdminApi {
     private final UserService userService;
 
     @Override
-    public ResponseEntity<?> ban(@RequestBody String email) {
+    public ResponseEntity<?> ban(String email) {
         if (Objects.equals(email, userService.isLogged())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You can't ban yourself");
         }

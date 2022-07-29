@@ -1,4 +1,4 @@
-package kz.akvelon.twitter.config;
+package kz.akvelon.twitter.config.api;
 
 import io.swagger.v3.oas.models.*;
 import io.swagger.v3.oas.models.info.Info;
@@ -19,24 +19,15 @@ import static kz.akvelon.twitter.security.filters.JwtAuthenticationFilter.USERNA
 
 
 @Configuration
-public class OpenApiConfig {
+public class OpenApiCustoms {
     public static final String BEARER_AUTH_SCHEMA_NAME = "bearerAuth";
 
-    @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .addSecurityItem(buildSecurity())
-                .paths(buildAuthenticationPath())
-                .components(buildComponents())
-                .info(buildInfo());
-    }
-
-    private Paths buildAuthenticationPath() {
+    static Paths buildAuthenticationPath() {
         return new Paths()
                 .addPathItem(AUTHENTICATION_URL, buildAuthenticationPathItem());
     }
 
-    private PathItem buildAuthenticationPathItem() {
+    private static PathItem buildAuthenticationPathItem() {
         return new PathItem().post(
                 new Operation()
                         .addTagsItem("Authentication")
@@ -45,7 +36,7 @@ public class OpenApiConfig {
 
     }
 
-    private RequestBody buildAuthenticationRequestBody() {
+    static RequestBody buildAuthenticationRequestBody() {
         return new RequestBody().content(
                 new Content()
                         .addMediaType("application/x-www-form-urlencoded",
@@ -54,7 +45,7 @@ public class OpenApiConfig {
                                                 .$ref("EmailAndPassword"))));
     }
 
-    private ApiResponses buildAuthenticationResponses() {
+    static ApiResponses buildAuthenticationResponses() {
         return new ApiResponses()
                 .addApiResponse("200",
                         new ApiResponse()
@@ -65,36 +56,35 @@ public class OpenApiConfig {
                                                                 .$ref("Tokens")))));
     }
 
-    private SecurityRequirement buildSecurity() {
+    static SecurityRequirement buildSecurity() {
         return new SecurityRequirement().addList(BEARER_AUTH_SCHEMA_NAME);
     }
 
-    private Info buildInfo() {
+    static Info buildInfo() {
         return new Info().title("Twitter API").version("1.0").description("REST API for Twitter");
     }
 
-    private Components buildComponents() {
-        Schema<?> emailAndPassword = new Schema<>()
+    static Schema<?> emailAndPassword() {
+        return new Schema<>()
                 .type("object")
-                .description("Email and password of user")
+                .description("Email и пароль пользователя")
                 .addProperties(USERNAME_PARAMETER, new Schema<>().type("string"))
                 .addProperties("password", new Schema<>().type("string"));
+    }
 
-        Schema<?> tokens = new Schema<>()
+    static Schema<?> tokens() {
+        return new Schema<>()
                 .type("object")
                 .description("Access и Refresh токены")
                 .addProperties("accessToken", new Schema<>().type("string").description("Токен доступа"))
                 .addProperties("refreshToken", new Schema<>().type("string").description("Токен для обновления"));
+    }
 
-        SecurityScheme securityScheme = new SecurityScheme()
+    static SecurityScheme securityScheme() {
+        return new SecurityScheme()
                 .name("bearerAuth")
                 .type(SecurityScheme.Type.HTTP)
                 .scheme("bearer")
                 .bearerFormat("JWT");
-
-        return new Components()
-                .addSchemas("EmailAndPassword", emailAndPassword)
-                .addSchemas("Tokens", tokens)
-                .addSecuritySchemes("bearerAuth", securityScheme);
     }
 }

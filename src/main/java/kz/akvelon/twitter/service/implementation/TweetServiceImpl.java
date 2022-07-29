@@ -5,15 +5,20 @@ import kz.akvelon.twitter.dto.response.tweets.TweetsDtoPage;
 import kz.akvelon.twitter.model.Account;
 import kz.akvelon.twitter.model.Tag;
 import kz.akvelon.twitter.model.Tweet;
+import kz.akvelon.twitter.repository.TagRepository;
 import kz.akvelon.twitter.repository.TweetRepository;
 import kz.akvelon.twitter.service.TweetService;
 import kz.akvelon.twitter.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -24,7 +29,10 @@ import java.util.stream.Collectors;
 public class TweetServiceImpl implements TweetService {
     private final TweetRepository tweetRepository;
 
+    private final TagRepository tagRepository;
+
     @Override
+    @Transactional
     public Tweet save(Tweet tweet) {
         Account account = tweet.getAccount();
         account.getTweets().add(tweet);
@@ -32,6 +40,7 @@ public class TweetServiceImpl implements TweetService {
     }
 
     @Override
+    @Transactional
     public Tweet update(Tweet entity) {
         Tweet tweet = findById(entity.getId());
         tweet.setText(entity.getText());
@@ -39,6 +48,7 @@ public class TweetServiceImpl implements TweetService {
     }
 
     @Override
+    @Transactional
     public void delete(Long tweetId) {
         Tweet tweet = findById(tweetId);
         Account account = findById(tweetId).getAccount();
@@ -74,11 +84,17 @@ public class TweetServiceImpl implements TweetService {
 
     @Override
     public void addTag(Tweet tweet, Tag tag) {
-        if (!tweet.getTags().contains(tag)) {
-            tweet.getTags().add(tag);
+        Tweet tweetDB = findById(tweet.getId());
+
+        if (!tweetDB.getTags().contains(tag)) {
+            tweetDB.getTags().add(tag);
+            Tag tagDB = tagRepository.findByTagName(tag.getTagName());
+            tagDB.setTweetsCount(tagDB.getTweetsCount() + 1);
+            tagDB.getTweets().add(tweetDB);
+            tagRepository.save(tagDB);
         }
 
-        tweetRepository.save(tweet);
+        update(tweetDB);
     }
 
 }

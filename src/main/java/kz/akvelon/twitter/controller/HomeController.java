@@ -20,7 +20,7 @@ public class HomeController implements RegistrationApi {
     private final UserService userService;
 
     @Override
-    public ResponseEntity<?> register(@RequestBody RegistrationDto registrationDto) {
+    public ResponseEntity<?> register(RegistrationDto registrationDto) {
         try {
             userService.findByEmail(registrationDto.getEmail());
         } catch (UsernameNotFoundException e) {
@@ -33,7 +33,7 @@ public class HomeController implements RegistrationApi {
     }
 
     @Override
-    public ResponseEntity<?> confirmEmail(@PathVariable("email") String email, @PathVariable("username") String username) {
+    public ResponseEntity<?> confirmEmail(String email, String username) {
         userService.confirm(email, username);
 
         return new ResponseEntity<>("User successfully registered ", HttpStatus.OK);

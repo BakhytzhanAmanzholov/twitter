@@ -20,7 +20,7 @@ public class RoleController implements RoleApi {
     private final RoleService roleService;
 
     @Override
-    public ResponseEntity<?> save(@RequestBody String name) {
+    public ResponseEntity<?> save(String name) {
         if (roleService.findByName(name) != null) {
             return new ResponseEntity<>("Role is already created!", HttpStatus.ALREADY_REPORTED);
         }

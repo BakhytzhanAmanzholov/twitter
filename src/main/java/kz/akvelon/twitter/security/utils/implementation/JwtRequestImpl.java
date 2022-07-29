@@ -1,11 +1,14 @@
 package kz.akvelon.twitter.security.utils.implementation;
 
+import kz.akvelon.twitter.security.config.JwtSecurityConfig;
 import kz.akvelon.twitter.security.utils.AuthorizationHeaderUtil;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 
 @Component
+@ConditionalOnBean(value = JwtSecurityConfig.class)
 public class JwtRequestImpl implements AuthorizationHeaderUtil {
 
     private static final String AUTHORIZATION_HEADER_NAME = "AUTHORIZATION";

@@ -1,10 +1,8 @@
 package kz.akvelon.twitter.model;
 
 import kz.akvelon.twitter.dto.request.RegistrationDto;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.util.*;
@@ -12,7 +10,9 @@ import java.util.*;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
+@ToString
 @Builder
 public class Account {
     @Id
@@ -30,21 +30,27 @@ public class Account {
     private List<Role> roles = new ArrayList<>();
 
     @OneToMany
+    @ToString.Exclude
     private List<Tweet> tweets = new ArrayList<>();
 
     @OneToMany
+    @ToString.Exclude
     private List<Tweet> retweets = new ArrayList<>();
 
     @OneToMany
+    @ToString.Exclude
     private List<Tweet> quoteTweets = new ArrayList<>();
 
     @ManyToMany
+    @ToString.Exclude
     private Map<Reaction, ReactionInfo> reactions = new HashMap<>();
 
     @ManyToMany
+    @ToString.Exclude
     private List<Account> listSubscribers = new ArrayList<>();
 
     @ManyToMany
+    @ToString.Exclude
     private List<Account> listSubscriptions = new ArrayList<>();
 
     private Integer subscribers = 0;
@@ -74,5 +80,18 @@ public class Account {
                 .subscribers(0)
                 .subscriptions(0)
                 .build();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Account account = (Account) o;
+        return id != null && Objects.equals(id, account.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

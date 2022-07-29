@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
         @Tag(name = "Tweets")
 })
 @RequestMapping("/tweets")
-public interface TwitterApi {
+public interface TweetsApi {
     @PostMapping
     @Operation(summary = "Save a tweet")
     @ApiResponses(value = {
@@ -134,7 +134,7 @@ public interface TwitterApi {
     })
     ResponseEntity<?> share(@PathVariable("tweet-id") Long tweetId);
 
-    @PostMapping("/{tweet-id}/tweets/{tag-name}")
+    @PostMapping("/{tweet-id}/tags/{tag-name}")
     @Operation(summary = "Add a tag to a tweet")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",

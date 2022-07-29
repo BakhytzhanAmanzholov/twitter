@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 public class GenerateLinkImpl implements GenerateLink{
     @Override
     public String generateLink(String email, String username) {
-        return "http://localhost:8181/confirm/" + email + "/" +
+        return "http://localhost:8080/confirm/" + email + "/" +
                 username;
     }
 }

@@ -38,7 +38,7 @@ public class QuoteTweetResponseDto {
                 .reactions(new ArrayList<>())
                 .build();
 
-        for (ReactionInfo reaction: tweet.getReactions().values()){
+        for (ReactionInfo reaction : tweet.getReactions().values()) {
             quoteTweet.getReactions().add(ReactionDto.from(
                     reaction
             ));
