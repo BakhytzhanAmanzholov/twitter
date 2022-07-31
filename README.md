@@ -1,10 +1,10 @@
 # Twitter Clone Project
 
-- This project is prototype of twitter social media network.
+- This project a is prototype of Twitter social media network.
 
 ## Stack
 
-- Spring (Boot, Data, Security), PostgreSQL, Redis, RabbitMQ, JUnit, Mockito
+- Spring (Boot, Data, Security), PostgreSQL, Redis, RabbitMQ, JUnit, Mockito, Docker
 
 ## Before running
 
@@ -14,4 +14,4 @@
 
 - Add MongoDB
 - Migrate from RabbitMQ to ApacheKafka
-- Add front end side using React.js
+- Add front-end side using React.js
