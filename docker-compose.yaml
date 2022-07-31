@@ -1,0 +1,153 @@
+version: '3.3'
+
+services:
+
+  application:
+    image:
+      application-image
+    container_name: application
+    networks:
+      - cloud
+    ports:
+      - "80:8080"
+    depends_on:
+      - database
+      - redis
+      - rabbitmq
+      - mq-email
+      - mq-feed
+      - mq-moderation
+    environment:
+      - "SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/app_db"
+      - "SPRING_DATASOURCE_USERNAME=postgres"
+      - "SPRING_DATASOURCE_PASSWORD=abc123"
+      - "REDIS_HOST=redis"
+      - "REDIS_PORT=6380"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+
+  database:
+    image:
+      postgres
+    container_name: postgresql-container
+    networks:
+      - cloud
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: app_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: abc123
+    volumes:
+      - pgdata:/var/lib/postgres/data
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+
+  redis:
+    image:
+      redis-image
+    container_name:
+      redis_db
+    networks:
+      - cloud
+    ports:
+      - "6380:6380"
+    volumes:
+      - redis-volume:/data
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+
+  rabbitmq:
+    image:
+      rabbitmq:3-management-alpine
+    container_name:
+      rabbitmq-container
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ./etc/rabbitmq/conf:/etc/rabbitmq/
+      - ./etc/rabbitmq/data/:/var/lib/rabbitmq/
+      - ./etc/rabbitmq/logs/:/var/log/rabbitmq/
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 5s
+      timeout: 20s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+
+
+  mq-email:
+    image:
+      mq-email-image
+    container_name:
+      mq-email-container
+    networks:
+      - cloud
+    depends_on:
+      - rabbitmq
+    ports:
+      - "8181:8181"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+
+  mq-feed:
+    image:
+      mq-feed-image
+    container_name:
+      mq-feed-container
+    networks:
+      - cloud
+    depends_on:
+      - rabbitmq
+      - database
+    ports:
+      - "8282:8282"
+    environment:
+      - "SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/app_db"
+      - "SPRING_DATASOURCE_USERNAME=postgres"
+      - "SPRING_DATASOURCE_PASSWORD=abc123"
+
+  mq-moderation:
+    image:
+      mq-moderation-image
+    container_name:
+      mq-moderation-container
+    networks:
+      - cloud
+    depends_on:
+      - rabbitmq
+      - database
+    ports:
+      - "8383:8383"
+    environment:
+      - "SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/app_db"
+      - "SPRING_DATASOURCE_USERNAME=postgres"
+      - "SPRING_DATASOURCE_PASSWORD=abc123"
+
+
+volumes:
+  redis-volume:
+    external: true
+  pgdata:
+    external: true
+
+networks:
+  cloud:
+    external: true
