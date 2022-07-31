@@ -1,4 +1,4 @@
-package kz.akvelon.twitter.config;
+package kz.akvelon.twitter.config.mq;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static kz.akvelon.twitter.config.MqConstants.*;
+import static kz.akvelon.twitter.config.mq.MqConstants.*;
 
 
 @Configuration

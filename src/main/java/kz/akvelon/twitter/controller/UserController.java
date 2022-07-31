@@ -1,5 +1,6 @@
 package kz.akvelon.twitter.controller;
 
+import kz.akvelon.twitter.controller.api.UserApi;
 import kz.akvelon.twitter.dto.request.UserUpdateDto;
 import kz.akvelon.twitter.dto.response.users.UserDto;
 import kz.akvelon.twitter.model.Account;
@@ -15,10 +16,11 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/users")
-public class UserController {
+public class UserController implements UserApi {
     private final UserService userService;
 
     @GetMapping()
+    @Override
     public ResponseEntity<?> profile() {
         Account account = userService.findByEmail(userService.isLogged());
         if (account == null) {
@@ -29,6 +31,7 @@ public class UserController {
     }
 
     @DeleteMapping()
+    @Override
     public ResponseEntity<?> delete() {
         Account account = userService.findByEmail(userService.isLogged());
 
@@ -41,6 +44,7 @@ public class UserController {
     }
 
     @PutMapping
+    @Override
     public ResponseEntity<?> edit(@RequestBody UserUpdateDto userUpdateDto) {
         Account account = userService.findByEmail(userService.isLogged());
 
@@ -53,6 +57,7 @@ public class UserController {
     }
 
     @PostMapping("/subscribe/{id}")
+    @Override
     public ResponseEntity<?> subscribe(@PathVariable("id") Long id){
         if(userService.subscribe(id, userService.isLogged())){
             return ResponseEntity.status(HttpStatus.OK).body("You have successfully subscribed");

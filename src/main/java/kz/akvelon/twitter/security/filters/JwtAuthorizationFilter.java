@@ -1,12 +1,14 @@
 package kz.akvelon.twitter.security.filters;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import kz.akvelon.twitter.security.config.JwtSecurityConfig;
 import kz.akvelon.twitter.security.utils.AuthorizationHeaderUtil;
 import kz.akvelon.twitter.security.utils.JwtUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,8 @@ import static kz.akvelon.twitter.constants.GlobalApplicationConstants.AUTHENTICA
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Component
 @Slf4j
+@ConditionalOnBean(value = JwtSecurityConfig.class)
+
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     JwtUtil jwtUtil;

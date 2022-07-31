@@ -1,10 +1,12 @@
 package kz.akvelon.twitter.security.filters;
 
 import kz.akvelon.twitter.security.authentication.RefreshTokenAuthentication;
+import kz.akvelon.twitter.security.config.JwtSecurityConfig;
 import kz.akvelon.twitter.security.details.UserDetailsImpl;
 import kz.akvelon.twitter.security.utils.AuthorizationHeaderUtil;
 import kz.akvelon.twitter.security.utils.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -26,6 +28,8 @@ import static kz.akvelon.twitter.constants.GlobalApplicationConstants.AUTHENTICA
 
 @Component
 @Slf4j
+@ConditionalOnBean(value = JwtSecurityConfig.class)
+
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     public static final String USERNAME_PARAMETER = "email";

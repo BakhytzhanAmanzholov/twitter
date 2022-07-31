@@ -1,4 +1,4 @@
-package kz.akvelon.twitter.config;
+package kz.akvelon.twitter.config.mq;
 
 public class MqConstants {
     public static final String SPRING_BOOT_EXCHANGE = "spring-boot-exchange";

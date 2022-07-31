@@ -8,6 +8,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import kz.akvelon.twitter.model.Account;
 import kz.akvelon.twitter.model.Role;
+import kz.akvelon.twitter.security.config.JwtSecurityConfig;
 import kz.akvelon.twitter.security.details.UserDetailsImpl;
 import kz.akvelon.twitter.security.utils.JwtUtil;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,6 +27,7 @@ import java.util.*;
 
 
 @Component
+@ConditionalOnBean(value = JwtSecurityConfig.class)
 public class JwtUtilAuth0Impl implements JwtUtil {
 
     private static final long ACCESS_TOKEN_EXPIRES_TIME = 30 * 60 * 1000; // THIRTY MINUTES

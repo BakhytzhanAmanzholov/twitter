@@ -4,12 +4,14 @@ import kz.akvelon.twitter.dto.request.TweetRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +41,24 @@ public class Tweet {
 
     @OneToOne
     private Tweet quoteTweet;
+
+    @ManyToMany(cascade = {CascadeType.ALL})
+    @JoinTable(
+            name = "tweets_tags",
+            joinColumns = {@JoinColumn(name = "tweet_id")},
+            inverseJoinColumns = {@JoinColumn(name = "tag_id")})
+    @ToString.Exclude
+    Set<Tag> tags = new HashSet<>();
+
+    @Column(name = "scheduled_date")
+    private LocalDateTime scheduledDate;
+
+
+    @OneToOne
+    @JoinTable(name = "tweet_pool",
+            joinColumns = @JoinColumn(name = "tweets_id"),
+            inverseJoinColumns = @JoinColumn(name = "pools_id"))
+    private Poll poll;
 
 
     public Tweet() {

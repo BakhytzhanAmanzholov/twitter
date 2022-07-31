@@ -1,6 +1,6 @@
 package kz.akvelon.twitter.service.implementation;
 
-import kz.akvelon.twitter.config.MqConstants;
+import kz.akvelon.twitter.config.mq.MqConstants;
 import kz.akvelon.twitter.model.Account;
 import kz.akvelon.twitter.model.FeedTweets;
 import kz.akvelon.twitter.repository.FeedRepository;

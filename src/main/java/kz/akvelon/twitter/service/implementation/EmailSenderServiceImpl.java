@@ -1,10 +1,9 @@
 package kz.akvelon.twitter.service.implementation;
 
-import kz.akvelon.twitter.config.MqConstants;
+import kz.akvelon.twitter.config.mq.MqConstants;
 import kz.akvelon.twitter.service.EmailSenderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import org.springframework.amqp.core.Message;

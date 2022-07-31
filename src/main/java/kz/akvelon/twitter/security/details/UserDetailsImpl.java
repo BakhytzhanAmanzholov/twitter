@@ -3,8 +3,10 @@ package kz.akvelon.twitter.security.details;
 
 import kz.akvelon.twitter.model.Account;
 import kz.akvelon.twitter.model.Role;
+import kz.akvelon.twitter.security.config.JwtSecurityConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

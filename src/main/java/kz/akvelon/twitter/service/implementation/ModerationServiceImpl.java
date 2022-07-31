@@ -1,6 +1,6 @@
 package kz.akvelon.twitter.service.implementation;
 
-import kz.akvelon.twitter.config.MqConstants;
+import kz.akvelon.twitter.config.mq.MqConstants;
 import kz.akvelon.twitter.service.ModerationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,6 +24,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 @RequiredArgsConstructor
 @EnableWebSecurity
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Profile("!noSecurity")
 public class JwtSecurityConfig {
 
     UserDetailsService userDetailsServiceImpl;
@@ -37,9 +39,9 @@ public class JwtSecurityConfig {
                                                    JwtAuthorizationFilter jwtAuthorizationFilter) throws Exception {
         httpSecurity.csrf().disable();
         httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        httpSecurity.authorizeRequests().antMatchers("/registration/**", "auth/token/**", "/").permitAll();
-        httpSecurity.authorizeRequests().antMatchers("/users/**", "/tweets/**").authenticated();
-        httpSecurity.authorizeRequests().antMatchers("/admin/**").hasAuthority("ADMIN");
+        httpSecurity.authorizeRequests().antMatchers("/registration/**", "auth/token/**", "/", "/twitter-open-api").permitAll();
+        httpSecurity.authorizeRequests().antMatchers("/users/**", "/tweets/**", "/tags/**").authenticated();
+        httpSecurity.authorizeRequests().antMatchers("/admin/**", "/roles/**").hasAuthority("ADMIN");
 
 
         httpSecurity.addFilter(jwtAuthenticationFilter);

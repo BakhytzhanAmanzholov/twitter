@@ -26,6 +26,8 @@ public class TweetResponseDto {
 
     private String date;
 
+    private String scheduledDate;
+
     private UserInfoDto user;
 
 
@@ -39,13 +41,17 @@ public class TweetResponseDto {
                 )
                 .reactions(new ArrayList<>())
                 .build();
-        if(tweet.getReactions() != null){
-            for (ReactionInfo reaction: tweet.getReactions().values()){
+        if (tweet.getReactions() != null) {
+            for (ReactionInfo reaction : tweet.getReactions().values()) {
                 tweetResponseDto.getReactions().add(ReactionDto.from(
                         reaction
                 ));
             }
         }
+        if (tweet.getScheduledDate() != null) {
+            tweetResponseDto.setScheduledDate(tweet.getScheduledDate().toString());
+        }
+
         return tweetResponseDto;
     }
 }
