@@ -22,8 +22,8 @@ public class TagsController implements TagsApi {
     }
 
     @Override
-    public ResponseEntity<?> addTag(String tagName) {
-        return ResponseEntity.ok(tagsService.addTag(tagName));
+    public ResponseEntity<?> addTag(String name) {
+        return ResponseEntity.ok(tagsService.addTag(name));
     }
 
     @Override

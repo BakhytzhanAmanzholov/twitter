@@ -9,10 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tags;
 import kz.akvelon.twitter.dto.response.tweets.TweetResponseDto;
 import kz.akvelon.twitter.model.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -82,7 +79,7 @@ public interface TagsApi {
                     }
             )
     })
-    ResponseEntity<?> addTag(@PathVariable("tag-name") String tagName);
+    ResponseEntity<?> addTag(@RequestBody String name);
 
     @GetMapping("/{tag-name}/tweets")
     @Operation(summary = "Get tweets by tag name")
