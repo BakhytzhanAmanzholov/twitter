@@ -14,6 +14,9 @@ services:
       - database
       - redis
       - rabbitmq
+      - mq-email
+      - mq-feed
+      - mq-moderation
     environment:
       - "SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/app_db"
       - "SPRING_DATASOURCE_USERNAME=postgres"
@@ -116,6 +119,23 @@ services:
       - database
     ports:
       - "8282:8282"
+    environment:
+      - "SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/app_db"
+      - "SPRING_DATASOURCE_USERNAME=postgres"
+      - "SPRING_DATASOURCE_PASSWORD=abc123"
+
+  mq-moderation:
+    image:
+      mq-moderation-image
+    container_name:
+      mq-moderation-container
+    networks:
+      - cloud
+    depends_on:
+      - rabbitmq
+      - database
+    ports:
+      - "8383:8383"
     environment:
       - "SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/app_db"
       - "SPRING_DATASOURCE_USERNAME=postgres"
