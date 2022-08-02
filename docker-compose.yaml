@@ -9,7 +9,7 @@ services:
     networks:
       - cloud
     ports:
-      - "80:8080"
+      - "80:8181"
     depends_on:
       - database
       - redis
@@ -23,6 +23,8 @@ services:
       - "SPRING_DATASOURCE_PASSWORD=abc123"
       - "REDIS_HOST=redis"
       - "REDIS_PORT=6380"
+      - "SPRING_RABBITMQ_HOST=rabbitmq"
+      - "SPRING_RABBITMQ_PORT=5672"
     logging:
       driver: "json-file"
       options:
@@ -68,21 +70,16 @@ services:
 
   rabbitmq:
     image:
-      rabbitmq:3-management-alpine
+      rabbitmq:3-management
     container_name:
       rabbitmq-container
     ports:
       - 5672:5672
       - 15672:15672
+    networks:
+      - cloud
     volumes:
-      - ./etc/rabbitmq/conf:/etc/rabbitmq/
-      - ./etc/rabbitmq/data/:/var/lib/rabbitmq/
-      - ./etc/rabbitmq/logs/:/var/log/rabbitmq/
-    healthcheck:
-      test: [ "CMD", "rabbitmqctl", "status" ]
-      interval: 5s
-      timeout: 20s
-      retries: 5
+      - rabbitmq:/data
     logging:
       driver: "json-file"
       options:
@@ -100,7 +97,10 @@ services:
     depends_on:
       - rabbitmq
     ports:
-      - "8181:8181"
+      - "8181:8484"
+    environment:
+      - "SPRING_RABBITMQ_HOST=rabbitmq"
+      - "SPRING_RABBITMQ_PORT=5672"
     logging:
       driver: "json-file"
       options:
@@ -123,6 +123,8 @@ services:
       - "SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/app_db"
       - "SPRING_DATASOURCE_USERNAME=postgres"
       - "SPRING_DATASOURCE_PASSWORD=abc123"
+      - "SPRING_RABBITMQ_HOST=rabbitmq"
+      - "SPRING_RABBITMQ_PORT=5672"
 
   mq-moderation:
     image:
@@ -140,6 +142,8 @@ services:
       - "SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/app_db"
       - "SPRING_DATASOURCE_USERNAME=postgres"
       - "SPRING_DATASOURCE_PASSWORD=abc123"
+      - "SPRING_RABBITMQ_HOST=rabbitmq"
+      - "SPRING_RABBITMQ_PORT=5672"
 
 
 volumes:
@@ -147,7 +151,10 @@ volumes:
     external: true
   pgdata:
     external: true
+  rabbitmq:
+    external: true
 
 networks:
   cloud:
     external: true
+
