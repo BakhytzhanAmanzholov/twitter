@@ -41,7 +41,6 @@ public class TweetServiceImpl implements TweetService {
 
         List<BlackList> list = blackListService.findAll();
         List<String> blackList = new ArrayList<>();
-        log.info(text.toString());
 
         for(BlackList word: list){
             blackList.add(word.getWord());
