@@ -35,29 +35,20 @@ import java.util.NoSuchElementException;
 public class TweetsController implements TweetsApi {
     private final TweetService tweetService;
     private final UserService userService;
-
     private final FeedService feedService;
-
-    private final TagsService tagsService;
 
     @Override
     public ResponseEntity<TweetResponseDto> save(@RequestBody TweetRequestDto tweetRequest) {
-        Tweet tweet = Tweet.fromRequestDto(tweetRequest);
-        Account account = userService.findByEmail(userService.isLogged());
-        tweet.setAccount(account);
-        return ResponseEntity.status(HttpStatus.CREATED).body(TweetResponseDto.from(tweetService.save(tweet)));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(TweetResponseDto.from(tweetService.save(Tweet.fromRequestDto(tweetRequest))));
     }
 
     @Override
     public ResponseEntity<?> findById(@PathVariable("tweet-id") Long tweetId) {
-        try {
-            Tweet tweet = tweetService.findById(tweetId);
-            String email = userService.isLogged();
-            feedService.creatingTweetFeed(email, tweetId);
-            return ResponseEntity.status(HttpStatus.OK).body(TweetResponseDto.from(tweet));
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.OK).body("No matching tweet found");
-        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(TweetResponseDto.from(tweetService.findById(tweetId)));
     }
 
     @Override
@@ -95,22 +86,14 @@ public class TweetsController implements TweetsApi {
         }
     }
 
-
     @Override
     public ResponseEntity<?> addTag(Long tweetId, String tagName) {
-        Tweet tweet = tweetService.findById(tweetId);
-        Tag tag = tagsService.findByName(tagName);
-
-        if (tweet == null || tag == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tweet or tag is not found");
-        }
-
-        tweetService.addTag(tweet, tag);
-
-        return ResponseEntity.status(HttpStatus.OK).body("Added the tag to the tweet");
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(tweetService.addTag(tweetId, tagName));
     }
 
-    public ResponseEntity<FeedDto> feed(){
+    public ResponseEntity<FeedDto> feed() {
         FeedTweets feedTweets = feedService.findByAccount(userService.findByEmail(userService.isLogged()));
 
         return ResponseEntity.status(HttpStatus.OK).body(FeedDto.from(feedTweets));
@@ -118,37 +101,32 @@ public class TweetsController implements TweetsApi {
 
     @PostMapping("/{tweet-id}/poll")
     public ResponseEntity<?> createPoll(@RequestBody TweetCreatePollDto tweetRequest, @PathVariable("tweet-id") Long tweetId) {
-        Tweet tweet = tweetService.createPoll(tweetId, tweetRequest.getPollDateTime(), tweetRequest.getChoices());
-
-        if (tweet.getPoll() != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(TweetWithPollResponseDto.from(tweet));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No matching tweet found");
-        }
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(TweetWithPollResponseDto.from(
+                        tweetService.createPoll(tweetId, tweetRequest.getPollDateTime(), tweetRequest.getChoices())
+                ));
     }
 
     @PostMapping("/vote")
     public ResponseEntity<?> voteInPoll(@RequestBody PollVoteRequestDto pollVoteRequestDto) {
-        TweetResponseDto tweet = TweetResponseDto.from(tweetService.voteInPoll(userService.findByEmail(pollVoteRequestDto.getEmail()),
+
+        return ResponseEntity.ok(TweetResponseDto.from(tweetService.voteInPoll(
+                userService.findByEmail(pollVoteRequestDto.getEmail()),
                 pollVoteRequestDto.getTweetId(),
                 pollVoteRequestDto.getPollId(),
-                pollVoteRequestDto.getPollChoiceId()));
-
-        return ResponseEntity.ok(tweet);
+                pollVoteRequestDto.getPollChoiceId())
+        ));
     }
 
     @PostMapping("/schedule")
     public ResponseEntity<TweetResponseDto> createScheduledTweet(@RequestBody TweetRequestDto tweetRequest) {
-        Tweet tweet = Tweet.fromRequestDto(tweetRequest);
-
-        return ResponseEntity.ok(TweetResponseDto.from(tweetService.save(tweet)));
+        return ResponseEntity.ok(TweetResponseDto.from(tweetService.save(Tweet.fromRequestDto(tweetRequest))));
     }
 
     @PutMapping("/schedule")
     public ResponseEntity<TweetResponseDto> updateScheduledTweet(@RequestBody TweetRequestDto tweetRequest) {
-        Tweet tweet = Tweet.fromRequestDto(tweetRequest);
-
-        return ResponseEntity.ok(TweetResponseDto.from(tweetService.save(tweet)));
+        return ResponseEntity.ok(TweetResponseDto.from(tweetService.save(Tweet.fromRequestDto(tweetRequest))));
     }
 
     @DeleteMapping("/schedule")

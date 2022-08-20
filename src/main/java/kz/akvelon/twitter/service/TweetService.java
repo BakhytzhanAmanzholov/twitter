@@ -1,5 +1,6 @@
 package kz.akvelon.twitter.service;
 
+import kz.akvelon.twitter.dto.response.tweets.TweetResponseDto;
 import kz.akvelon.twitter.dto.response.tweets.TweetsDtoPage;
 import kz.akvelon.twitter.model.Account;
 import kz.akvelon.twitter.model.Tag;
@@ -15,7 +16,7 @@ public interface TweetService extends CrudService<Tweet, Long>{
     List<Tweet> findTweetsByDescription(String text, Pageable pageable);
 
 
-    void addTag(Tweet tweet, Tag tag);
+    TweetResponseDto addTag(Long tweet, String tag);
 
     Tweet createPoll(Long tweetId, Long pollDateTime, List<String> choices);
 

@@ -41,6 +41,12 @@ public class TagServiceImpl implements TagsService {
 
     @Override
     public Tag findByName(String tagName) {
+        Tag tag = tagRepository.findByTagName(tagName);
+
+        if(tag == null) {
+            throw new IllegalArgumentException("No tag with this name found");
+        }
+
         return tagRepository.findByTagName(tagName);
     }
 

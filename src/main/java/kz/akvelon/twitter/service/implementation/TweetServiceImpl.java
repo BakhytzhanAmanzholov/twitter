@@ -7,8 +7,7 @@ import kz.akvelon.twitter.repository.PollChoiceRepository;
 import kz.akvelon.twitter.repository.PollRepository;
 import kz.akvelon.twitter.repository.TagRepository;
 import kz.akvelon.twitter.repository.TweetRepository;
-import kz.akvelon.twitter.service.ModerationService;
-import kz.akvelon.twitter.service.TweetService;
+import kz.akvelon.twitter.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +35,11 @@ public class TweetServiceImpl implements TweetService {
 
     private final PollChoiceRepository pollChoiceRepository;
 
+    private final UserService userService;
+
+    private final FeedService feedService;
+
+    private final TagsService tagsService;
     @Override
     public TweetsDtoPage getTweets(Pageable pageable) {
         Page<Tweet> tweets = tweetRepository.findAll(pageable);
@@ -53,13 +57,17 @@ public class TweetServiceImpl implements TweetService {
 
     @Override
     public Tweet findById(Long tweetId) {
+        String email = userService.isLogged();
+        feedService.creatingTweetFeed(email, tweetId);
+
         return tweetRepository.findById(tweetId)
                 .orElseThrow(NoSuchElementException::new);
     }
 
     @Override
     public Tweet save(Tweet tweet) {
-        Account account = tweet.getAccount();
+        Account account = userService.findByEmail(userService.isLogged());
+        tweet.setAccount(account);
         account.getTweets().add(tweet);
         Tweet finalTweet = tweetRepository.save(tweet);
         moderationService.moderateTweet(finalTweet.getId()); // Send to RabbitMQ queue
@@ -87,7 +95,10 @@ public class TweetServiceImpl implements TweetService {
     }
 
     @Override
-    public void addTag(Tweet tweet, Tag tag) {
+    public TweetResponseDto addTag(Long tweetId, String tagName) {
+        Tweet tweet = findById(tweetId);
+        Tag tag = tagsService.findByName(tagName);
+
         Tweet tweetDB = findById(tweet.getId());
 
         if (!tweetDB.getTags().contains(tag)) {
@@ -96,9 +107,13 @@ public class TweetServiceImpl implements TweetService {
             tagDB.setTweetsCount(tagDB.getTweetsCount() + 1);
             tagDB.getTweets().add(tweetDB);
             tagRepository.save(tagDB);
+        } else {
+            throw new IllegalArgumentException("Tag is already contains");
         }
 
         update(tweetDB);
+
+        return TweetResponseDto.from(tweetDB);
     }
 
     @Override

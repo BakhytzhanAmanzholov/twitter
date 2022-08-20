@@ -30,12 +30,6 @@ public class TagsController implements TagsApi {
 
     @Override
     public ResponseEntity<?> findByName(String tagName) {
-        Tag tag = tagsService.findByName(tagName);
-
-        if (tag == null) {
-            return ResponseEntity.badRequest().body("No tag with this name");
-        }
-
         return ResponseEntity.ok(tagsService.findByName(tagName));
     }
 

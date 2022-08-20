@@ -24,7 +24,6 @@ import java.util.Collections;
         HibernateJpaAutoConfiguration.class,
         RedisAutoConfiguration.class
 })
-
 public class ConfigurationForControllersTest {
     public static final String MOCK_USERNAME = "yeldos.manap@gmail.com";
 

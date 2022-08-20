@@ -21,10 +21,11 @@ public class FeedServiceImpl implements FeedService {
     private final FeedRepository feedRepository;
 
     @Override
-    public void creatingTweetFeed(String email, Long tweetID) {
-        String mes = email + "." + tweetID;
+    public void creatingTweetFeed(String email, Long tweetId) {
+        String message = email + "." + tweetId;
+
         rabbitTemplate.convertAndSend(MqConstants.SPRING_BOOT_EXCHANGE, "feed.bar.baz",
-                new Message(mes.getBytes()));
+                new Message(message.getBytes()));
     }
 
     @Override
