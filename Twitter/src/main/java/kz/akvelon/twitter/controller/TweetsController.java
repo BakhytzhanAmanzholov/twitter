@@ -34,17 +34,10 @@ import java.util.NoSuchElementException;
 @RequestMapping("/tweets")
 public class TweetsController implements TweetsApi {
     private final TweetService tweetService;
-    private final UserService userService;
-
-    private final FeedService feedService;
-
-    private final TagsService tagsService;
 
     @Override
     public ResponseEntity<TweetResponseDto> save(@RequestBody TweetRequestDto tweetRequest) {
         Tweet tweet = Tweet.fromRequestDto(tweetRequest);
-        Account account = userService.findByEmail(userService.isLogged());
-        tweet.setAccount(account);
         return ResponseEntity.status(HttpStatus.CREATED).body(TweetResponseDto.from(tweetService.save(tweet)));
     }
 
@@ -52,8 +45,7 @@ public class TweetsController implements TweetsApi {
     public ResponseEntity<?> findById(@PathVariable("tweet-id") Long tweetId) {
         try {
             Tweet tweet = tweetService.findById(tweetId);
-            String email = userService.isLogged();
-            feedService.creatingTweetFeed(email, tweetId);
+            tweetService.creatingTweetFeed(tweetId);
             return ResponseEntity.status(HttpStatus.OK).body(TweetResponseDto.from(tweet));
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.OK).body("No matching tweet found");
@@ -62,15 +54,13 @@ public class TweetsController implements TweetsApi {
 
     @Override
     public ResponseEntity<?> retweet(@PathVariable("tweet-id") Long tweetId) {
-        userService.retweet(tweetId, userService.isLogged());
-        return ResponseEntity.ok("Retweeted");
+        return ResponseEntity.ok(TweetResponseDto.from(tweetService.retweet(tweetId)));
     }
 
     @Override
     public ResponseEntity<?> quote(@PathVariable("tweet-id") Long tweetId, @RequestBody TweetRequestDto tweetRequestDto) {
         Tweet tweet = Tweet.fromRequestDto(tweetRequestDto);
-        userService.quote(tweetId, userService.isLogged(), tweet);
-        return ResponseEntity.ok("Quote tweet");
+        return ResponseEntity.ok(tweetService.quote(tweetId, tweet));
     }
 
     @Override
@@ -88,7 +78,7 @@ public class TweetsController implements TweetsApi {
 
     @Override
     public ResponseEntity<?> reaction(@PathVariable("tweet-id") Long tweetId, @PathVariable("reaction-id") Long reactionId) {
-        if (userService.reaction(tweetId, userService.isLogged(), reactionId)) {
+        if (tweetService.reaction(tweetId, reactionId)) {
             return ResponseEntity.status(HttpStatus.OK).body("You have successfully left a reaction");
         } else {
             return ResponseEntity.status(HttpStatus.OK).body("You have already left a reaction");
@@ -98,21 +88,13 @@ public class TweetsController implements TweetsApi {
 
     @Override
     public ResponseEntity<?> addTag(Long tweetId, String tagName) {
-        Tweet tweet = tweetService.findById(tweetId);
-        Tag tag = tagsService.findByName(tagName);
-
-        if (tweet == null || tag == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tweet or tag is not found");
-        }
-
-        tweetService.addTag(tweet, tag);
-
+        tweetService.addTagToTweet(tweetId, tagName);
         return ResponseEntity.status(HttpStatus.OK).body("Added the tag to the tweet");
     }
 
     @GetMapping("/feed")
     public ResponseEntity<FeedDto> feed(){
-        FeedTweets feedTweets = feedService.findByAccount(userService.findByEmail(userService.isLogged()));
+        FeedTweets feedTweets = tweetService.getFeed();
 
         return ResponseEntity.status(HttpStatus.OK).body(FeedDto.from(feedTweets));
     }
@@ -130,7 +112,7 @@ public class TweetsController implements TweetsApi {
 
     @PostMapping("/vote")
     public ResponseEntity<?> voteInPoll(@RequestBody PollVoteRequestDto pollVoteRequestDto) {
-        TweetResponseDto tweet = TweetResponseDto.from(tweetService.voteInPoll(userService.findByEmail(pollVoteRequestDto.getEmail()),
+        TweetResponseDto tweet = TweetResponseDto.from(tweetService.voteInPoll(
                 pollVoteRequestDto.getTweetId(),
                 pollVoteRequestDto.getPollId(),
                 pollVoteRequestDto.getPollChoiceId()));

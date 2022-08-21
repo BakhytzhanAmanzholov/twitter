@@ -7,8 +7,7 @@ import kz.akvelon.twitter.repository.PollChoiceRepository;
 import kz.akvelon.twitter.repository.PollRepository;
 import kz.akvelon.twitter.repository.TagRepository;
 import kz.akvelon.twitter.repository.TweetRepository;
-import kz.akvelon.twitter.service.ModerationService;
-import kz.akvelon.twitter.service.TweetService;
+import kz.akvelon.twitter.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -35,6 +33,16 @@ public class TweetServiceImpl implements TweetService {
     private final PollRepository pollRepository;
 
     private final PollChoiceRepository pollChoiceRepository;
+
+    private final UserService userService;
+
+    private final ReactionService reactionService;
+
+    private final ReactionInfoService reactionInfoService;
+
+    private final FeedService feedService;
+
+    private final TagsService tagsService;
 
     @Override
     public TweetsDtoPage getTweets(Pageable pageable) {
@@ -59,10 +67,11 @@ public class TweetServiceImpl implements TweetService {
 
     @Override
     public Tweet save(Tweet tweet) {
-        Account account = tweet.getAccount();
+        Account account = userService.findByEmail(userService.isLogged());
+        tweet.setAccount(account);
         account.getTweets().add(tweet);
         Tweet finalTweet = tweetRepository.save(tweet);
-        moderationService.moderateTweet(finalTweet.getId()); // Send to RabbitMQ queue
+        moderationService.moderateTweet(finalTweet.getId());
         return finalTweet;
     }
 
@@ -86,20 +95,6 @@ public class TweetServiceImpl implements TweetService {
         return tweet;
     }
 
-    @Override
-    public void addTag(Tweet tweet, Tag tag) {
-        Tweet tweetDB = findById(tweet.getId());
-
-        if (!tweetDB.getTags().contains(tag)) {
-            tweetDB.getTags().add(tag);
-            Tag tagDB = tagRepository.findByTagName(tag.getTagName());
-            tagDB.setTweetsCount(tagDB.getTweetsCount() + 1);
-            tagDB.getTweets().add(tweetDB);
-            tagRepository.save(tagDB);
-        }
-
-        update(tweetDB);
-    }
 
     @Override
     public Tweet createPoll(Long tweetId, Long pollDateTime, List<String> choices) {
@@ -132,7 +127,9 @@ public class TweetServiceImpl implements TweetService {
     }
 
     @Override
-    public Tweet voteInPoll(Account user, Long tweetId, Long pollId, Long pollChoiceId) {
+    public Tweet voteInPoll(Long tweetId, Long pollId, Long pollChoiceId) {
+        Account user = userService.findByEmail(userService.isLogged());
+
         Poll poll = pollRepository.findById(pollId)
                 .orElseThrow(IllegalArgumentException::new);
         PollChoice pollChoice = pollChoiceRepository.findById(pollChoiceId)
@@ -165,4 +162,75 @@ public class TweetServiceImpl implements TweetService {
         return "Deleted scheduled tweets";
     }
 
+    @Override
+    public boolean reaction(Long tweetId, Long reactionId) {
+        Reaction reaction = reactionService.findById(reactionId);
+        Tweet tweet = findById(tweetId);
+        Account account = userService.findByEmail(userService.isLogged());
+
+        for (ReactionInfo reactionInfo : tweet.getReactions().values()) {
+            if (reactionInfo.getAccount() == account) {
+                return false;
+            }
+        }
+
+        if (tweet.getReactions().containsKey(reaction)) {
+            reactionInfoService.update(tweet.getReactions().get(reaction));
+        } else {
+            ReactionInfo reactionInfo = new ReactionInfo(reaction, 1);
+            tweet.getReactions().put(reaction, reactionInfo);
+            account.getReactions().put(reaction, reactionInfo);
+            reactionInfo.setAccount(account);
+            reactionInfo.setTweet(tweet);
+            reactionInfoService.save(reactionInfo);
+        }
+        return true;
+    }
+
+    @Override
+    public Tweet retweet(Long tweetId) {
+        Account account = userService.findByEmail(userService.isLogged());
+        Tweet tweet = findById(tweetId);
+        if (account.getTweets().contains(tweet)) {
+            throw new IllegalArgumentException();
+        }
+        account.getRetweets().add(tweet);
+        return tweet;
+    }
+
+    @Override
+    public Tweet quote(Long tweetId, Tweet tweet) {
+        Account account = userService.findByEmail(userService.isLogged());
+        Tweet entity = findById(tweetId);
+        tweet.setQuoteTweet(entity);
+        account.getQuoteTweets().add(tweet);
+        tweet.setAccount(account);
+        return save(tweet);
+    }
+
+    @Override
+    public void creatingTweetFeed(Long tweetId) {
+        feedService.creatingTweetFeed(userService.isLogged(), tweetId);
+    }
+
+    @Override
+    public void addTagToTweet(Long tweetId, String tagName) {
+        Tag tag = tagsService.findByName(tagName);
+        Tweet tweet = findById(tweetId);
+
+        if (!tweet.getTags().contains(tag)) {
+            tweet.getTags().add(tag);
+            Tag tagDB = tagRepository.findByTagName(tag.getTagName());
+            tagDB.setTweetsCount(tagDB.getTweetsCount() + 1);
+            tagDB.getTweets().add(tweet);
+            tagRepository.save(tagDB);
+        }
+
+        update(tweet);
+    }
+
+    @Override
+    public FeedTweets getFeed() {
+        return feedService.findByAccount(userService.findByEmail(userService.isLogged()));
+    }
 }

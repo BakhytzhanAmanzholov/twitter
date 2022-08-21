@@ -22,17 +22,17 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping
 public interface RegistrationApi {
 
-    @GetMapping
-    @Operation(summary = "Get tweets by pagination")
-    @ApiResponses(value =
-    @ApiResponse(responseCode = "200",
-            description = "Tweets were successfully returned",
-            content = {
-                    @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseEntity.class))}
-    )
-    )
-    ResponseEntity<?> index(@PageableDefault PageDto pageable);
+//    @GetMapping
+//    @Operation(summary = "Get tweets by pagination")
+//    @ApiResponses(value =
+//    @ApiResponse(responseCode = "200",
+//            description = "Tweets were successfully returned",
+//            content = {
+//                    @Content(mediaType = "application/json",
+//                            schema = @Schema(implementation = ResponseEntity.class))}
+//    )
+//    )
+//    ResponseEntity<?> index(@PageableDefault PageDto pageable);
 
     @PostMapping("/registration")
     @Operation(summary = "Register to the system")

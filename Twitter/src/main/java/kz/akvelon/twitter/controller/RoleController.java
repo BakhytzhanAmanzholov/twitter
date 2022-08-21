@@ -24,11 +24,8 @@ public class RoleController implements RoleApi {
     @Override
     public ResponseEntity<?> save(@RequestBody String name) {
         if (roleService.findByName(name) != null) {
-            return new ResponseEntity<>("Role is already created!", HttpStatus.OK);
+            return ResponseEntity.badRequest().body("Role is already created!");
         }
-        Role role = new Role(name);
-        System.out.println(role);
-        roleService.save(role);
-        return new ResponseEntity<>("Role create successfully", HttpStatus.OK);
+        return new ResponseEntity<>(roleService.save(new Role(name)), HttpStatus.OK);
     }
 }

@@ -25,9 +25,6 @@ import java.util.Objects;
 public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final TweetService tweetService;
-    private final ReactionService reactionService;
-    private final ReactionInfoService reactionInfoService;
     private final PasswordEncoder passwordEncoder;
     private final EmailSenderService emailSenderService;
 
@@ -86,33 +83,6 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public void addTweetToUser(Long tweetId, String email) {
-        Account account = findByEmail(email);
-        Tweet tweet = tweetService.findById(tweetId);
-        account.getTweets().add(tweet);
-    }
-
-    @Override
-    public void retweet(Long tweetId, String email) {
-        Account account = findByEmail(email);
-        Tweet tweet = tweetService.findById(tweetId);
-        if (account.getTweets().contains(tweet)) {
-            throw new IllegalArgumentException();
-        }
-        account.getRetweets().add(tweet);
-    }
-
-    @Override
-    public void quote(Long tweetId, String email, Tweet tweet) {
-        Account account = findByEmail(email);
-        Tweet entity = tweetService.findById(tweetId);
-        tweet.setQuoteTweet(entity);
-        account.getQuoteTweets().add(tweet);
-        tweet.setAccount(account);
-        tweetService.save(tweet);
-    }
-
-    @Override
     public String isLogged() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentPrincipalName = authentication.getName();
@@ -123,30 +93,6 @@ public class UserServiceImpl implements UserService{
         return "anonymousUser";
     }
 
-    @Override
-    public boolean reaction(Long tweetId, String email, Long reactionId) {
-        Reaction reaction = reactionService.findById(reactionId);
-        Tweet tweet = tweetService.findById(tweetId);
-        Account account = findByEmail(email);
-
-        for (ReactionInfo reactionInfo : tweet.getReactions().values()) {
-            if (reactionInfo.getAccount() == account) {
-                return false; // TODO: слишком медленно
-            }
-        }
-
-        if (tweet.getReactions().containsKey(reaction)) {
-            reactionInfoService.update(tweet.getReactions().get(reaction));
-        } else {
-            ReactionInfo reactionInfo = new ReactionInfo(reaction, 1);
-            tweet.getReactions().put(reaction, reactionInfo);
-            account.getReactions().put(reaction, reactionInfo);
-            reactionInfo.setAccount(account);
-            reactionInfo.setTweet(tweet);
-            reactionInfoService.save(reactionInfo);
-        }
-        return true;
-    }
 
     @Override
     public boolean subscribe(Long id, String email) {
@@ -173,17 +119,4 @@ public class UserServiceImpl implements UserService{
         addRoleToUser(account.getEmail(), "USER");
     }
 
-    @Override
-    public void ban(String email) {
-        Account account = findByEmail(email);
-        for(Role role: account.getRoles()){
-            if(Objects.equals(role.getName(), "ADMIN")){
-                return;
-            }
-        }
-        for (Tweet tweet: account.getTweets()) {
-            tweetService.delete(tweet.getId());
-        }
-        account.setBanned(false);
-    }
 }

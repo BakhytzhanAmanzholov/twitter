@@ -25,13 +25,6 @@ import org.springframework.web.client.HttpClientErrorException;
 public class HomeController implements RegistrationApi {
     private final UserService userService;
 
-    private final TweetService tweetService;
-
-    @Override
-    public ResponseEntity<?> index(@RequestBody PageDto dto){
-        Pageable pageable = PageRequest.of(dto.getPage(), dto.getSize());
-        return ResponseEntity.status(HttpStatus.OK).body(tweetService.getTweets(pageable));
-    }
 
     @Override
     public ResponseEntity<?> registration(@RequestBody RegistrationDto registrationDto) {
@@ -43,7 +36,6 @@ public class HomeController implements RegistrationApi {
             userService.save(account);
             return new ResponseEntity<>("Please confirm your email", HttpStatus.OK);
         }
-
         return new ResponseEntity<>("Email is already taken!", HttpStatus.BAD_REQUEST);
     }
 
@@ -52,7 +44,5 @@ public class HomeController implements RegistrationApi {
         userService.confirm(email, username);
         return new ResponseEntity<>("User successfully registered ", HttpStatus.OK);
     }
-
-
 
 }

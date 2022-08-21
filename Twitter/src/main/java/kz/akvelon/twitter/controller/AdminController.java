@@ -3,6 +3,7 @@ package kz.akvelon.twitter.controller;
 import kz.akvelon.twitter.controller.api.AdminApi;
 import kz.akvelon.twitter.dto.request.RoleUserDto;
 import kz.akvelon.twitter.model.BlackList;
+import kz.akvelon.twitter.service.AdminService;
 import kz.akvelon.twitter.service.BlackListService;
 import kz.akvelon.twitter.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -19,36 +20,27 @@ import java.util.Objects;
 @RequestMapping("/admin")
 public class AdminController implements AdminApi {
 
-    private final UserService userService;
-
-    private final BlackListService blackListService;
+    private final AdminService adminService;
 
     @PostMapping("/ban")
     @Override
     public ResponseEntity<?> ban(@RequestBody String email) {
-        if (Objects.equals(email, userService.isLogged())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You can't ban yourself");
-        }
-        userService.ban(email);
-
-        return ResponseEntity.status(HttpStatus.OK).body("You have successfully banned");
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.ban(email));
     }
 
     @Override
     public ResponseEntity<?> addWordToBlackList(@RequestBody String word) {
-        blackListService.save(BlackList.builder()
+        adminService.save(BlackList.builder()
                 .word(word)
                 .build());
 
-        return ResponseEntity.status(HttpStatus.OK).body("Word successfully added");
+        return ResponseEntity.status(HttpStatus.OK).body(word + " successfully added to the blacklist");
     }
 
     @Override
     public ResponseEntity<?> addRoleToUser(@RequestBody RoleUserDto dto) {
-        userService.addRoleToUser(dto.getEmail(), dto.getRoleName());
-
+        adminService.addRoleToUser(dto.getEmail(), dto.getRoleName());
         return ResponseEntity.status(HttpStatus.OK).body("Role successfully added to User");
     }
-
 
 }

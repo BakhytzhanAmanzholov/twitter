@@ -36,15 +36,15 @@ public class FeedPercentagesServiceImpl implements FeedPercentagesService {
     public void addTweetsToFeed(FeedTweets feed, Tweet tweet) {
         List<Tweet> tweets = tweetService.findTweetsByTextLike(tweet.getText());
 
-        for (Tweet tw : tweets) {
-            if (feed.getTweets().contains(tw)) {
+        for (Tweet tweetLike : tweets) {
+            if (feed.getTweets().contains(tweetLike)) {
                 for(TweetPercentages tweetPercentages: feed.getTweetList()){
-                    if(tweetPercentages.getTweet().equals(tw)){
+                    if(tweetPercentages.getTweet().equals(tweetLike)){
                         tweetPercentagesService.increase(tweetPercentages, 0.01);
                     }
                 }
             } else {
-                addTweet(tw, feed);
+                addTweet(tweetLike, feed);
             }
         }
     }
